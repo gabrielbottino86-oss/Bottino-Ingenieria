@@ -1,4 +1,3 @@
-"""
 Gestión de Proyectos - Bottino Ingeniería
 Servidor Flask para Railway (PostgreSQL)
 """
