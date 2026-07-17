@@ -50,7 +50,7 @@ init_db()
 @app.route('/')
 def index():
     from flask import make_response
-    resp = make_response(send_file('app.html'))
+    resp = make_response(send_file('index.html'))
     resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     resp.headers['Pragma'] = 'no-cache'
     resp.headers['Expires'] = '0'
@@ -149,3 +149,4 @@ if __name__ == '__main__':
     print(f"Iniciando en puerto {port}")
     print(f"DATABASE_URL: {'configurada' if DATABASE_URL else 'NO - usando SQLite'}")
     app.run(host='0.0.0.0', port=port, debug=False)
+
