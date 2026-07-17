@@ -110,6 +110,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   <button class="nb" onclick="goTo('p-liquid',this)"><svg viewBox="0 0 16 16" fill="none"><path d="M2 14l4-4 3 3 5-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="13" cy="3" r="2" stroke="currentColor" stroke-width="1.3"/></svg>Liquidación</button>
   <div class="nav-group">Config</div>
   <button class="nb" onclick="goTo('p-config',this)"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.42 1.42M11.53 11.53l1.42 1.42M3.05 12.95l1.42-1.42M11.53 4.47l1.42-1.42" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Configuración</button>
+  <button class="nb" onclick="goTo('p-ayuda',this)"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 11v-1M8 5.5C8 4.67 8.67 4 9.5 4S11 4.67 11 5.5c0 1.5-3 1.5-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Ayuda / Lógica</button>
 </nav>
 
 <main class="main">
@@ -243,6 +244,186 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     </div>
     <input type="file" id="imp-inp" accept=".json" style="display:none;" onchange="impJSON(event)">
     <div id="bk-msg" style="margin-top:10px;font-size:12px;color:var(--green);display:none;"></div>
+  </div>
+</div>
+
+
+<!-- AYUDA -->
+<div class="page" id="p-ayuda">
+  <div class="ph"><div><div class="pt">Lógica y filosofía de cálculo</div><div class="ps">Cómo funciona el sistema — transparencia total para los socios</div></div></div>
+
+  <div class="card">
+    <div class="ct">🏗 Estructura general</div>
+    <p style="font-size:14px;line-height:1.7;margin-bottom:12px;">El sistema gestiona proyectos de ingeniería con cobros en ARS o USD. Todos los cobros de clientes ingresan a la cuenta de <strong>EyG (Eze y Gabi)</strong>. Diego no recibe cobros directamente — EyG le transfiere su parte al liquidar.</p>
+    <p style="font-size:14px;line-height:1.7;">Cada proyecto tiene un <strong>% de distribución configurable</strong>. Por defecto: Diego 33.33%, Eze 33.33%, Gabi 33.33%.</p>
+  </div>
+
+  <div class="card">
+    <div class="ct">💰 Cálculo de ingresos</div>
+    <div style="background:var(--surface2);border-radius:var(--r);padding:1rem;margin-bottom:12px;font-family:'DM Mono',monospace;font-size:13px;line-height:2;">
+      <div><strong>Importe cobrado al cliente</strong> (con IVA incluido)</div>
+      <div style="color:var(--red);">− IVA débito = importe × tasa / (1 + tasa)</div>
+      <div style="color:var(--red);">− IIBB = neto gravado × %IIBB</div>
+      <div style="color:var(--red);">− Déb/Créd bancario = neto gravado × %DC</div>
+      <div style="color:var(--red);">− Gastos bancarios = neto gravado × %banco</div>
+      <div style="border-top:.5px solid var(--border);padding-top:8px;margin-top:4px;color:var(--green);"><strong>= Ingreso neto disponible</strong></div>
+    </div>
+    <p style="font-size:13px;color:var(--muted);">El ingreso neto es lo que efectivamente queda disponible después de cumplir las obligaciones impositivas sobre cada cobro.</p>
+  </div>
+
+  <div class="card">
+    <div class="ct">🧾 Tipos de gastos y su efecto</div>
+    <table style="width:100%;font-size:13px;border-collapse:collapse;">
+      <tr style="background:var(--surface2);"><th style="padding:8px;text-align:left;">Comprobante</th><th style="padding:8px;text-align:left;">Deduce Ganancias</th><th style="padding:8px;text-align:left;">Crédito IVA</th><th style="padding:8px;text-align:left;">Efecto</th></tr>
+      <tr style="border-bottom:.5px solid var(--border);"><td style="padding:8px;"><strong>Sin comprobante (SC)</strong></td><td style="padding:8px;color:var(--red);">No</td><td style="padding:8px;color:var(--red);">No</td><td style="padding:8px;color:var(--muted);">Se descuenta de utilidad, no reduce impuestos</td></tr>
+      <tr style="border-bottom:.5px solid var(--border);"><td style="padding:8px;"><strong>Consumidor Final (CF)</strong></td><td style="padding:8px;color:var(--green);">Sí</td><td style="padding:8px;color:var(--red);">No</td><td style="padding:8px;color:var(--muted);">Reduce base de Ganancias</td></tr>
+      <tr><td style="padding:8px;"><strong>Factura A</strong></td><td style="padding:8px;color:var(--green);">Sí</td><td style="padding:8px;color:var(--green);">Sí</td><td style="padding:8px;color:var(--muted);">Reduce Ganancias + recupera IVA pagado</td></tr>
+    </table>
+    <div class="ib" style="margin-top:10px;">El IVA crédito fiscal (Factura A) se suma a la utilidad porque reduce el costo efectivo del gasto — es dinero que el fisco devuelve.</div>
+  </div>
+
+  <div class="card">
+    <div class="ct">📊 Cálculo de utilidad neta</div>
+    <div style="background:var(--surface2);border-radius:var(--r);padding:1rem;font-family:'DM Mono',monospace;font-size:13px;line-height:2;">
+      <div style="color:var(--green);">+ Ingresos netos (cobrado − IVA − IIBB − DC − banco)</div>
+      <div style="color:var(--red);">− Gastos operativos brutos</div>
+      <div style="color:var(--green);">+ IVA crédito fiscal (Facturas A)</div>
+      <div style="color:var(--red);">− Impuestos manuales (IIBB declarado, otros)</div>
+      <div style="color:var(--red);">− Comisiones de vendedores</div>
+      <div style="color:var(--red);">− Ganancias estimadas (base neta × 35%*)</div>
+      <div style="border-top:.5px solid var(--border);padding-top:8px;margin-top:4px;color:var(--green);font-weight:bold;">= UTILIDAD NETA A REPARTIR</div>
+    </div>
+    <div class="wb" style="margin-top:10px;">* Ganancias: se calcula sobre (ingresos netos − gastos deducibles) × tasa configurada (default 35%). Es una <strong>estimación</strong> — la tasa real puede variar según la modalidad impositiva de cada socio y el régimen de la sociedad de hecho.</div>
+  </div>
+
+  <div class="card">
+    <div class="ct">👥 Distribución entre socios</div>
+    <div style="background:var(--surface2);border-radius:var(--r);padding:1rem;font-family:'DM Mono',monospace;font-size:13px;line-height:2;">
+      <div><strong>Utilidad Diego</strong> = Utilidad neta × % Diego</div>
+      <div><strong>Utilidad Eze</strong> = Utilidad neta × % EyG / 2</div>
+      <div><strong>Utilidad Gabi</strong> = Utilidad neta × % EyG / 2</div>
+      <div style="margin-top:8px;"><strong>EyG transfiere a Diego</strong> = Utilidad Diego + Gastos que pagó Diego</div>
+      <div><strong>EyG retiene</strong> = Utilidad Eze + Utilidad Gabi</div>
+    </div>
+    <p style="font-size:13px;color:var(--muted);margin-top:10px;">Si Diego pagó gastos de su bolsillo (viáticos, materiales, etc.), se le reintegra en la transferencia. EyG no recibe reintegro porque ellos ya tienen los fondos cobrados al cliente.</p>
+  </div>
+
+  <div class="card">
+    <div class="ct">🏦 Cuenta corriente EyG</div>
+    <div style="background:var(--surface2);border-radius:var(--r);padding:1rem;font-family:'DM Mono',monospace;font-size:13px;line-height:2;">
+      <div style="color:var(--blue);">+ Todos los cobros de clientes</div>
+      <div style="color:var(--red);">− Gastos que pagó EyG</div>
+      <div style="color:var(--red);">− Impuestos y deducciones automáticas</div>
+      <div style="border-top:.5px solid var(--border);padding-top:8px;"><strong>= Saldo disponible en cuenta EyG</strong></div>
+      <div style="margin-top:8px;color:var(--red);">− Transferencia a Diego (utilidad + reintegro)</div>
+      <div style="border-top:.5px solid var(--border);padding-top:8px;color:var(--green);"><strong>= Lo que retiene EyG (su utilidad)</strong></div>
+    </div>
+    <p style="font-size:13px;color:var(--muted);margin-top:10px;">El saldo final de EyG debería coincidir con la suma de utilidades de Eze y Gabi. Si hay diferencia, puede deberse a gastos sin clasificar o impuestos manuales pendientes de registrar.</p>
+  </div>
+
+  <div class="card">
+    <div class="ct">💵 Proyectos en dólares</div>
+    <p style="font-size:14px;line-height:1.7;margin-bottom:12px;">Cuando el proyecto está cotizado en USD, el seguimiento de cobros convierte los pagos en ARS a dólares usando el TC de cada movimiento:</p>
+    <div style="background:var(--surface2);border-radius:var(--r);padding:1rem;font-family:'DM Mono',monospace;font-size:13px;line-height:2;">
+      <div><strong>Cobrado neto USD</strong> = ARS cobrado ÷ TC ÷ 1.21</div>
+      <div><strong>Saldo neto</strong> = Total cotizado neto USD − Cobrado neto USD</div>
+      <div><strong>Saldo bruto</strong> = Saldo neto × 1.21</div>
+    </div>
+    <div class="ib" style="margin-top:10px;">Es importante registrar el TC correcto en cada cobro para que los saldos sean exactos. Si un cobro no tiene TC, el sistema usa el TC oficial del día como estimación.</div>
+  </div>
+
+  <div class="card">
+    <div class="ct">⚠️ Limitaciones y consideraciones</div>
+    <div style="font-size:14px;line-height:1.8;">
+      <div style="margin-bottom:8px;">📌 <strong>Ganancias es una estimación.</strong> El sistema calcula un % fijo configurable. El impuesto real depende del régimen impositivo de cada socio.</div>
+      <div style="margin-bottom:8px;">📌 <strong>IVA débito vs IVA declarado.</strong> El sistema calcula el IVA débito de cada cobro automáticamente. Si hay diferencias con la declaración real, podés registrar pagos de IVA como movimiento de tipo "Impuesto".</div>
+      <div style="margin-bottom:8px;">📌 <strong>Simultaneidad.</strong> El sistema no bloquea ediciones simultáneas. Si dos socios guardan al mismo tiempo, el último guardado prevalece.</div>
+      <div>📌 <strong>Backup.</strong> Se recomienda exportar el JSON periódicamente desde Configuración → Exportar.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- AYUDA -->
+<div class="page" id="p-ayuda">
+  <div class="ph"><div><div class="pt">Lógica y filosofía de cálculo</div><div class="ps">Transparencia total para los socios</div></div></div>
+
+  <div class="card"><div class="ct">🏗 Estructura general</div>
+    <p style="font-size:14px;line-height:1.7;margin-bottom:10px;"><strong>Bottino Ingeniería es una Sociedad Anónima.</strong> Los socios formales son <strong>Eze y Gabi</strong>. Diego participa como tercer socio pero <strong>no está inscripto</strong> — tiene trabajo en relación de dependencia.</p>
+    <p style="font-size:14px;line-height:1.7;margin-bottom:10px;">Todos los cobros de clientes ingresan a la cuenta de <strong>EyG (Eze y Gabi)</strong>. Diego no recibe cobros directamente — EyG le transfiere su parte al liquidar cada proyecto.</p>
+    <p style="font-size:14px;line-height:1.7;">Cada proyecto tiene un <strong>% de distribución configurable</strong>. Por defecto: Diego 33.33% · Eze 33.33% · Gabi 33.33%.</p>
+  </div>
+
+  <div class="card"><div class="ct">💰 Cálculo de ingresos netos</div>
+    <div style="background:var(--surface2);border-radius:var(--r);padding:1rem;font-family:'DM Mono',monospace;font-size:13px;line-height:2.2;">
+      <div>Importe cobrado al cliente (con IVA incluido)</div>
+      <div style="color:var(--red);">− IVA débito = importe × tasa / (1 + tasa)</div>
+      <div style="color:var(--red);">− IIBB = neto × %IIBB</div>
+      <div style="color:var(--red);">− Déb/Créd = neto × %DC</div>
+      <div style="color:var(--red);">− Gs. bancarios = neto × %banco</div>
+      <div style="border-top:.5px solid var(--border);padding-top:8px;color:var(--green);font-weight:600;">= Ingreso neto disponible</div>
+    </div>
+  </div>
+
+  <div class="card"><div class="ct">🧾 Tipos de comprobantes en gastos</div>
+    <table style="width:100%;font-size:13px;border-collapse:collapse;">
+      <tr style="background:var(--surface2);font-size:11px;font-weight:500;letter-spacing:.05em;">
+        <td style="padding:8px;">Comprobante</td><td style="padding:8px;">Deduce Ganancias</td><td style="padding:8px;">Crédito IVA</td>
+      </tr>
+      <tr style="border-bottom:.5px solid var(--border);">
+        <td style="padding:8px;"><strong>Sin comprobante</strong></td><td style="padding:8px;color:var(--red);">No</td><td style="padding:8px;color:var(--red);">No</td>
+      </tr>
+      <tr style="border-bottom:.5px solid var(--border);">
+        <td style="padding:8px;"><strong>Consumidor Final</strong></td><td style="padding:8px;color:var(--green);">Sí</td><td style="padding:8px;color:var(--red);">No</td>
+      </tr>
+      <tr>
+        <td style="padding:8px;"><strong>Factura A</strong></td><td style="padding:8px;color:var(--green);">Sí</td><td style="padding:8px;color:var(--green);">Sí — se recupera</td>
+      </tr>
+    </table>
+    <div class="ib" style="margin-top:10px;">El IVA crédito fiscal (Factura A) se suma a la utilidad porque reduce el costo efectivo del gasto.</div>
+  </div>
+
+  <div class="card"><div class="ct">📊 Fórmula de utilidad neta</div>
+    <div style="background:var(--surface2);border-radius:var(--r);padding:1rem;font-family:'DM Mono',monospace;font-size:13px;line-height:2.2;">
+      <div style="color:var(--green);">+ Ingresos netos</div>
+      <div style="color:var(--red);">− Gastos operativos brutos</div>
+      <div style="color:var(--green);">+ IVA crédito fiscal (Facturas A)</div>
+      <div style="color:var(--red);">− Impuestos manuales registrados</div>
+      <div style="color:var(--red);">− Comisiones de vendedores</div>
+      <div style="color:var(--red);">− Ganancias estimadas = (ingresos netos − gastos deducibles) × tasa%</div>
+      <div style="border-top:.5px solid var(--border);padding-top:8px;color:var(--green);font-weight:600;">= UTILIDAD NETA A REPARTIR</div>
+    </div>
+    <div class="ib" style="margin-top:10px;"><strong>Ganancias al 35% fijo:</strong> La SA (Eze y Gabi) tributa Ganancias corporativas al 35% sobre la base imponible. Este impuesto se descuenta <em>antes</em> de repartir entre los tres socios — por eso los tres reciben su parte ya neta de impuestos. Diego, al no estar inscripto, recibe su participación sin obligaciones impositivas adicionales por este concepto. El porcentaje es configurable en Configuración.</div>
+  </div>
+
+  <div class="card"><div class="ct">👥 Distribución entre socios</div>
+    <div style="background:var(--surface2);border-radius:var(--r);padding:1rem;font-family:'DM Mono',monospace;font-size:13px;line-height:2.2;">
+      <div>Utilidad Diego = Utilidad neta × % Diego</div>
+      <div>Utilidad Eze = Utilidad neta × % EyG ÷ 2</div>
+      <div>Utilidad Gabi = Utilidad neta × % EyG ÷ 2</div>
+      <div style="border-top:.5px solid var(--border);padding-top:8px;"></div>
+      <div style="color:var(--red);">EyG transfiere a Diego = Utilidad Diego + Gastos que pagó Diego</div>
+      <div style="color:var(--green);">EyG retiene = Utilidad Eze + Utilidad Gabi</div>
+    </div>
+    <p style="font-size:13px;color:var(--muted);margin-top:10px;">Si Diego pagó gastos de su bolsillo, se le reintegra en la transferencia. EyG no necesita reintegro porque ya tiene los fondos de los cobros.</p>
+  </div>
+
+  <div class="card"><div class="ct">💵 Proyectos en dólares</div>
+    <div style="background:var(--surface2);border-radius:var(--r);padding:1rem;font-family:'DM Mono',monospace;font-size:13px;line-height:2.2;">
+      <div>Cobrado neto USD = ARS cobrado ÷ TC ÷ 1.21</div>
+      <div>Saldo neto = Total cotizado neto USD − Cobrado neto USD</div>
+      <div>Saldo bruto = Saldo neto × 1.21</div>
+    </div>
+    <div class="ib" style="margin-top:10px;">Es importante registrar el TC correcto en cada cobro. Sin TC, el sistema usa el TC oficial del día como estimación.</div>
+  </div>
+
+  <div class="card"><div class="ct">⚠️ Consideraciones importantes</div>
+    <div style="font-size:14px;line-height:1.9;">
+      <div style="margin-bottom:8px;">📌 <strong>Ganancias al 35%</strong> — la SA tributa corporativamente. Se descuenta antes de repartir entre los socios. Si cambia la alícuota, actualizarlo en Configuración.</div>
+      <div style="margin-bottom:8px;">📌 <strong>IVA declarado</strong> — si hay diferencias con la declaración real, registrá el pago como movimiento de tipo "Impuesto / IVA".</div>
+      <div style="margin-bottom:8px;">📌 <strong>Edición simultánea</strong> — si dos socios guardan al mismo tiempo, el último prevalece. Evitar uso simultáneo cuando sea posible.</div>
+      <div>📌 <strong>Backup</strong> — exportar JSON periódicamente desde Configuración → Exportar.</div>
+    </div>
   </div>
 </div>
 
