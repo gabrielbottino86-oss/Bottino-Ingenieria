@@ -125,6 +125,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 <!-- PROYECTOS -->
 <div class="page" id="p-proyectos">
   <div class="ph"><div><div class="pt">Proyectos</div><div class="ps">Seleccioná uno para ver el detalle</div></div><button class="btn btn-p" onclick="abrirPj()">+ Nuevo proyecto</button></div>
+  <div class="tab-bar" style="margin-bottom:1rem;">
+    <button class="tab-btn active" id="tab-activos" onclick="filtrarPjs('activo',this)">Activos</button>
+    <button class="tab-btn" id="tab-cerrados" onclick="filtrarPjs('cerrado',this)">Finalizados</button>
+    <button class="tab-btn" id="tab-todos" onclick="filtrarPjs('todos',this)">Todos</button>
+  </div>
   <div class="two"><div id="lista-pj"></div><div id="detalle-pj"><div class="empty">Seleccioná un proyecto</div></div></div>
 </div>
 
@@ -403,7 +408,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   <div class="modal-box" style="width:420px;">
     <div class="modal-title">Registrar horas</div>
     <div class="fg g2">
-      <div class="f"><label>Socio</label><select id="hs-socio"><option value="diego">Diego</option><option value="eze">Eze</option><option value="gabi">Gabi</option></select></div>
+      <div class="f"><label>Integrante</label>
+        <input type="text" id="hs-socio" list="hs-socio-list" placeholder="Nombre..." autocomplete="off">
+        <datalist id="hs-socio-list">
+          <option value="Diego">
+          <option value="Eze">
+          <option value="Gabi">
+        </datalist>
+      </div>
       <div class="f"><label>Horas</label><input type="number" id="hs-hrs" value="1" min="0.5" step="0.5"></div>
     </div>
     <div class="f"><label>Tarea / descripción</label><input type="text" id="hs-tarea" placeholder="Ej: Configuración tablero"></div>
@@ -1067,9 +1079,8 @@ function calcPj(pjId) {
   const cobraGabi = utilGabi;
 
   // Horas
-  const hD = hs.filter(h => h.socio === 'diego').reduce((s,h) => s + h.horas, 0);
-  const hE = hs.filter(h => h.socio === 'eze').reduce((s,h) => s + h.horas, 0);
-  const hG = hs.filter(h => h.socio === 'gabi').reduce((s,h) => s + h.horas, 0);
+  const hTotal = hs.reduce((s,h) => s + h.horas, 0);
+  const hD=hTotal, hE=0, hG=0; // kept for compatibility
 
   // montoCotizado stored as NETO; display with IVA for client-facing amount
   const montoCotizNeto = pj.montoCotizado || 0;
@@ -1161,10 +1172,20 @@ function renderResumen() {
 // ═══════════════════════════════════════════════════════════
 // RENDER PROYECTOS
 // ═══════════════════════════════════════════════════════════
+let _pjFiltro = 'activo';
+function filtrarPjs(filtro, btn) {
+  _pjFiltro = filtro;
+  document.querySelectorAll('#p-proyectos .tab-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderPjLista();
+}
 function renderPjLista() {
   const el = document.getElementById('lista-pj');
+  let pjs = ST.proyectos;
+  if (_pjFiltro !== 'todos') pjs = pjs.filter(p => p.estado === _pjFiltro);
   if (!ST.proyectos.length) { el.innerHTML = '<div class="empty">No hay proyectos.</div>'; return; }
-  el.innerHTML = ST.proyectos.map(p => {
+  if (!pjs.length) { el.innerHTML = `<div class="empty">No hay proyectos ${_pjFiltro === 'activo' ? 'activos' : 'finalizados'}.</div>`; return; }
+  el.innerHTML = pjs.map(p => {
     const c = calcPj(p.id);
     return `<div class="pjc ${ST.selPj===p.id?'sel':''}" onclick="selPj('${p.id}')">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;">
@@ -1191,9 +1212,15 @@ function renderDetPj(id) {
 
   const bComp = t => ({ SC:'SC', CF:'CF', A:'Fact.A' }[t] || '');
   const bSoc = s => ({ eyg:'EyG', diego:'Diego' }[s] || '');
-  const nomSoc = s => ({ diego:'Diego', eze:'Eze', gabi:'Gabi' }[s] || s);
-  const colSoc = s => ({ diego:'#eaf0fb', eze:'#e8f5ee', gabi:'#fdf0eb' }[s] || '#f0efe9');
-  const txtSoc = s => ({ diego:'#1e3a6e', eze:'#1b4332', gabi:'#7c2d12' }[s] || '#5a5a54');
+  const nomSoc = s => s || 'Sin nombre';
+  const colSoc = s => {
+    const map = { 'Diego':'#eaf0fb','diego':'#eaf0fb','Eze':'#e8f5ee','eze':'#e8f5ee','Gabi':'#fdf0eb','gabi':'#fdf0eb' };
+    return map[s] || '#f0efe9';
+  };
+  const txtSoc = s => {
+    const map = { 'Diego':'#1e3a6e','diego':'#1e3a6e','Eze':'#1b4332','eze':'#1b4332','Gabi':'#7c2d12','gabi':'#7c2d12' };
+    return map[s] || '#3a3a34';
+  };
 
   document.getElementById('detalle-pj').innerHTML = `
   <div class="card">
@@ -1204,6 +1231,7 @@ function renderDetPj(id) {
         ${pj.adjunto?`<div style="font-size:11px;margin-top:2px;"><span style="cursor:pointer;color:var(--blue-text);text-decoration:underline;" onclick="abrirAdjunto('${pj.adjunto}')">📎 ${pj.adjunto.split('\\').pop().split('/').pop()}</span></div>`:''}</div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
         <span class="badge b${pj.estado==='activo'?'act':'cer'}">${pj.estado}</span>
+        <button class="btn btn-s" onclick="imprimirPj('${id}')">🖨 PDF</button>
         <button class="btn btn-s" onclick="abrirPj('${id}')">Editar</button>
         <button class="btn btn-s btn-d" onclick="elimPj('${id}')">Eliminar</button>
       </div>
@@ -1283,10 +1311,11 @@ function renderDetPj(id) {
         <div style="font-size:13px;color:var(--muted);">Solo referencia — no afecta utilidades</div>
         <button class="btn btn-s btn-p" onclick="abrirHoras('${id}')">+ Registrar horas</button>
       </div>
-      <div style="display:flex;gap:8px;margin-bottom:1rem;">
-        ${[{n:'Diego',h:c.hD,col:'#378ADD'},{n:'Eze',h:c.hE,col:'#1D9E75'},{n:'Gabi',h:c.hG,col:'#E07A5F'}].map(s =>
-          `<div style="flex:1;background:var(--surface2);border-radius:var(--r);padding:.75rem 1rem;text-align:center;"><div style="font-size:11px;color:var(--muted);margin-bottom:4px;">${s.n}</div><div style="font-size:20px;font-weight:500;font-family:'DM Mono',monospace;color:${s.col};">${s.h}h</div></div>`
+      <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;">
+        ${Object.entries(horas.reduce((acc,h)=>{acc[h.socio]=(acc[h.socio]||0)+h.horas;return acc},{})).map(([nombre,hs],i) =>
+          `<div style="flex:1;min-width:80px;background:var(--surface2);border-radius:var(--r);padding:.75rem 1rem;text-align:center;"><div style="font-size:11px;color:var(--muted);margin-bottom:4px;">${nombre}</div><div style="font-size:20px;font-weight:500;font-family:'DM Mono',monospace;color:var(--blue);">${hs}h</div></div>`
         ).join('')}
+        ${horas.length===0?'<div style="font-size:13px;color:var(--muted);padding:.5rem;">Sin horas registradas</div>':''}
       </div>
       ${horas.map(h => `
         <div class="ri">
@@ -1367,6 +1396,74 @@ async function elegirAdjunto(campoId, modo) {
   } catch(e) {
     alert('No se pudo abrir el explorador de archivos. Asegurate de que el servidor esté corriendo.');
   }
+}
+
+function imprimirPj(id) {
+  const pj = ST.proyectos.find(p => p.id === id); if (!pj) return;
+  const c = calcPj(id);
+  const movs = ST.movimientos.filter(m => m.proyectoId === id).sort((a,b) => b.fecha.localeCompare(a.fecha));
+  const horas = ST.horas.filter(h => h.proyectoId === id);
+  const empresa = ST.cfg?.empresa || 'Bottino Ingeniería';
+  
+  const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+  <title>${pj.nombre} — ${empresa}</title>
+  <style>
+    body{font-family:Arial,sans-serif;font-size:12px;color:#1a1a18;margin:2cm;}
+    h1{font-size:20px;margin-bottom:4px;} h2{font-size:14px;margin:16px 0 6px;border-bottom:1px solid #ccc;padding-bottom:4px;}
+    .sub{color:#7a7a74;font-size:11px;margin-bottom:16px;}
+    table{width:100%;border-collapse:collapse;margin-bottom:12px;}
+    th{background:#1a1a18;color:white;padding:6px 8px;text-align:left;font-size:11px;}
+    td{padding:5px 8px;border-bottom:1px solid #eee;font-size:11px;}
+    .right{text-align:right;} .green{color:#2d6a4f;font-weight:bold;} .red{color:#c1440e;}
+    .blue{color:#1e4fa0;} .total{font-weight:bold;background:#f5f5f0;}
+    @media print{body{margin:1cm;}}
+  </style></head><body>
+  <h1>${pj.nombre}</h1>
+  <div class="sub">${empresa} · ${pj.cliente||''} · ${pj.fecha||''} · <span style="background:${pj.estado==='activo'?'#e8f5ee':'#f0efe9'};padding:2px 8px;border-radius:4px;">${pj.estado}</span></div>
+  
+  <h2>Resumen financiero</h2>
+  <table>
+    <tr><td>Ingresos cobrados</td><td class="right blue">${fmt(c.ingresosBrutos)}</td></tr>
+    <tr><td>Gastos operativos</td><td class="right red">−${fmt(c.gastosBrutos)}</td></tr>
+    ${c.ivaCredito>0?`<tr><td>Crédito fiscal IVA</td><td class="right green">+${fmt(c.ivaCredito)}</td></tr>`:''}
+    <tr><td>Impuestos y deducciones</td><td class="right red">−${fmt(c.otrosImp+c.impGan)}</td></tr>
+    <tr class="total"><td>Utilidad neta a repartir</td><td class="right ${c.utilidadNeta>=0?'green':'red'}">${fmt(c.utilidadNeta)} (${c.ingresosNeto>0?(c.utilidadNeta/c.ingresosNeto*100).toFixed(1)+'%':'—'})</td></tr>
+  </table>
+  
+  ${c.montoCotizNeto>0?`<h2>Seguimiento de cobros (${c.monedaCotiz})</h2>
+  <table>
+    <tr><td>Total neto (sin IVA)</td><td class="right">${c.monedaCotiz==='USD'?'USD '+Math.round(c.montoCotizNeto).toLocaleString('es-AR'):fmt(c.montoCotizNeto)}</td></tr>
+    <tr><td>Total bruto (con IVA)</td><td class="right">${c.monedaCotiz==='USD'?'USD '+Math.round(c.montoCotiz).toLocaleString('es-AR'):fmt(c.montoCotiz)}</td></tr>
+    <tr><td>Cobrado neto</td><td class="right blue">${c.monedaCotiz==='USD'?'USD '+Math.round(c.cobradoEnMonedaCotiz).toLocaleString('es-AR'):fmt(c.cobradoEnMonedaCotiz)}</td></tr>
+    <tr class="total"><td>Saldo pendiente neto</td><td class="right ${c.saldo>0?'red':'green'}">${c.monedaCotiz==='USD'?'USD '+Math.round(c.saldo).toLocaleString('es-AR'):fmt(c.saldo)}</td></tr>
+    <tr><td>Saldo pendiente bruto</td><td class="right">${c.monedaCotiz==='USD'?'USD '+Math.round(c.saldoBruto).toLocaleString('es-AR'):fmt(c.saldoBruto)}</td></tr>
+  </table>`:''}
+  
+  ${movs.length>0?`<h2>Movimientos (${movs.length})</h2>
+  <table>
+    <tr><th>Fecha</th><th>Tipo</th><th>Categoría</th><th>Descripción</th><th class="right">Importe</th></tr>
+    ${movs.map(m=>`<tr>
+      <td>${m.fecha}</td>
+      <td>${m.tipo}</td>
+      <td>${m.subtipo}</td>
+      <td>${m.desc||''}</td>
+      <td class="right ${m.tipo==='ingreso'?'blue':'red'}">${m.tipo==='ingreso'?'+':'−'}${m.moneda==='USD'?'USD '+m.importe.toLocaleString('es-AR'):fmt(getARS(m))}</td>
+    </tr>`).join('')}
+  </table>`:''}
+  
+  ${horas.length>0?`<h2>Horas registradas (${horas.reduce((s,h)=>s+h.horas,0)}h total)</h2>
+  <table>
+    <tr><th>Fecha</th><th>Integrante</th><th>Tarea</th><th class="right">Horas</th></tr>
+    ${horas.map(h=>`<tr><td>${h.fecha}</td><td>${h.socio}</td><td>${h.tarea||''}</td><td class="right">${h.horas}h</td></tr>`).join('')}
+  </table>`:''}
+  
+  <div style="margin-top:24px;font-size:10px;color:#aaa;text-align:right;">Generado ${new Date().toLocaleString('es-AR')} · ${empresa}</div>
+  <scr"+"ipt>window.onload=()=>window.print();<\/scr"+"ipt>
+  </body></html>`;
+  
+  const w = window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
 }
 
 function elimHs(id, pjId) {
@@ -1726,10 +1823,23 @@ function impJSON(ev) {
   const f=ev.target.files[0];if(!f)return;
   const r=new FileReader();
   r.onload=e=>{
-    try{const d=JSON.parse(e.target.result);if(!d.proyectos||!d.movimientos)throw new Error();
-      ST={...defState(),...d};saveSt();renderResumen();updFiltros();renderCotizList();renderVends();aplicarLogo();
-      const msg=document.getElementById('bk-msg');msg.textContent=`✓ Importados: ${d.proyectos.length} proyectos, ${d.movimientos.length} movimientos.`;msg.style.display='block';setTimeout(()=>msg.style.display='none',4000);
-    }catch(err){alert('Archivo inválido.');}
+    try{
+      const d=JSON.parse(e.target.result);
+      // Be permissive - accept any JSON with at least one of the expected keys
+      if(!d || typeof d !== 'object') throw new Error('No es un objeto JSON válido');
+      if(!d.proyectos && !d.movimientos) throw new Error('No tiene datos de proyectos');
+      ST={...defState(),...d};
+      if(!ST.proyectos) ST.proyectos=[];
+      if(!ST.movimientos) ST.movimientos=[];
+      if(!ST.horas) ST.horas=[];
+      if(!ST.transferencias) ST.transferencias=[];
+      if(!ST.vendedores) ST.vendedores=[];
+      if(!ST.cotizaciones) ST.cotizaciones=[];
+      saveSt();renderResumen();updFiltros();renderCotizList();renderVends();aplicarLogo();
+      const msg=document.getElementById('bk-msg');
+      msg.textContent=`✓ Importados: ${ST.proyectos.length} proyectos, ${ST.movimientos.length} movimientos.`;
+      msg.style.display='block';setTimeout(()=>msg.style.display='none',4000);
+    }catch(err){alert('Error al importar: ' + err.message);}
   };
   r.readAsText(f);ev.target.value='';
 }
@@ -1794,3 +1904,4 @@ init();
 </script>
 </body>
 </html>
+
