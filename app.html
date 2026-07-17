@@ -1581,7 +1581,7 @@ async function elegirAdjunto(campoId, modo) {
 
 function imprimirPj(id) {
   const pj = ST.proyectos.find(p => p.id === id); if (!pj) return;
-  const c = calcPj(id);
+  const cv = calcPj(id);
   const movs = ST.movimientos.filter(m => m.proyectoId === id).sort((a,b) => b.fecha.localeCompare(a.fecha));
   const horas = ST.horas.filter(h => h.proyectoId === id);
   const empresa = ST.cfg?.empresa || 'Bottino Ingeniería';
@@ -1606,18 +1606,18 @@ function imprimirPj(id) {
   <table>
     <tr><td>Ingresos cobrados</td><td class="right blue">${fmt(c.ingresosBrutos)}</td></tr>
     <tr><td>Gastos operativos</td><td class="right red">−${fmt(c.gastosBrutos)}</td></tr>
-    ${c.ivaCredito>0?`<tr><td>Crédito fiscal IVA</td><td class="right green">+${fmt(c.ivaCredito)}</td></tr>`:''}
+    ${cv.ivaCredito>0?`<tr><td>Crédito fiscal IVA</td><td class="right green">+${fmt(c.ivaCredito)}</td></tr>`:''}
     <tr><td>Impuestos y deducciones</td><td class="right red">−${fmt(c.otrosImp+c.impGan)}</td></tr>
-    <tr class="total"><td>Utilidad neta a repartir</td><td class="right ${c.utilidadNeta>=0?'green':'red'}">${fmt(c.utilidadNeta)} (${c.ingresosNeto>0?(c.utilidadNeta/c.ingresosNeto*100).toFixed(1)+'%':'—'})</td></tr>
+    <tr class="total"><td>Utilidad neta a repartir</td><td class="right ${cv.utilidadNeta>=0?'green':'red'}">${fmt(c.utilidadNeta)} (${cv.ingresosNeto>0?(c.utilidadNeta/c.ingresosNeto*100).toFixed(1)+'%':'—'})</td></tr>
   </table>
   
-  ${c.montoCotizNeto>0?`<h2>Seguimiento de cobros (${c.monedaCotiz})</h2>
+  ${cv.montoCotizNeto>0?`<h2>Seguimiento de cobros (${cv.monedaCotiz})</h2>
   <table>
-    <tr><td>Total neto (sin IVA)</td><td class="right">${c.monedaCotiz==='USD'?'USD '+Math.round(c.montoCotizNeto).toLocaleString('es-AR'):fmt(c.montoCotizNeto)}</td></tr>
-    <tr><td>Total bruto (con IVA)</td><td class="right">${c.monedaCotiz==='USD'?'USD '+Math.round(c.montoCotiz).toLocaleString('es-AR'):fmt(c.montoCotiz)}</td></tr>
-    <tr><td>Cobrado neto</td><td class="right blue">${c.monedaCotiz==='USD'?'USD '+Math.round(c.cobradoEnMonedaCotiz).toLocaleString('es-AR'):fmt(c.cobradoEnMonedaCotiz)}</td></tr>
-    <tr class="total"><td>Saldo pendiente neto</td><td class="right ${c.saldo>0?'red':'green'}">${c.monedaCotiz==='USD'?'USD '+Math.round(c.saldo).toLocaleString('es-AR'):fmt(c.saldo)}</td></tr>
-    <tr><td>Saldo pendiente bruto</td><td class="right">${c.monedaCotiz==='USD'?'USD '+Math.round(c.saldoBruto).toLocaleString('es-AR'):fmt(c.saldoBruto)}</td></tr>
+    <tr><td>Total neto (sin IVA)</td><td class="right">${cv.monedaCotiz==='USD'?'USD '+Math.round(c.montoCotizNeto).toLocaleString('es-AR'):fmt(c.montoCotizNeto)}</td></tr>
+    <tr><td>Total bruto (con IVA)</td><td class="right">${cv.monedaCotiz==='USD'?'USD '+Math.round(c.montoCotiz).toLocaleString('es-AR'):fmt(c.montoCotiz)}</td></tr>
+    <tr><td>Cobrado neto</td><td class="right blue">${cv.monedaCotiz==='USD'?'USD '+Math.round(c.cobradoEnMonedaCotiz).toLocaleString('es-AR'):fmt(c.cobradoEnMonedaCotiz)}</td></tr>
+    <tr class="total"><td>Saldo pendiente neto</td><td class="right ${cv.saldo>0?'red':'green'}">${cv.monedaCotiz==='USD'?'USD '+Math.round(c.saldo).toLocaleString('es-AR'):fmt(c.saldo)}</td></tr>
+    <tr><td>Saldo pendiente bruto</td><td class="right">${cv.monedaCotiz==='USD'?'USD '+Math.round(c.saldoBruto).toLocaleString('es-AR'):fmt(c.saldoBruto)}</td></tr>
   </table>`:''}
   
   ${movs.length>0?`<h2>Movimientos (${movs.length})</h2>
@@ -1638,6 +1638,18 @@ function imprimirPj(id) {
     ${horas.map(h=>`<tr><td>${h.fecha}</td><td>${h.socio}</td><td>${h.tarea||''}</td><td class="right">${h.horas}h</td></tr>`).join('')}
   </table>`:''}
   
+  <h2 style="font-size:14px;margin:16px 0 6px;border-bottom:1px solid #ccc;padding-bottom:4px;">Distribución de utilidades</h2>
+  <table style="width:100%;border-collapse:collapse;margin-bottom:12px;">
+    <tr style="background:#1a1a18;color:white;"><th style="padding:6px 8px;text-align:left;font-size:11px;">Socio</th><th style="padding:6px 8px;text-align:right;font-size:11px;">%</th><th style="padding:6px 8px;text-align:right;font-size:11px;">Utilidad</th><th style="padding:6px 8px;text-align:right;font-size:11px;">Gastos propios</th><th style="padding:6px 8px;text-align:right;font-size:11px;">Total a cobrar</th></tr>
+    <tr style="border-bottom:1px solid #eee;"><td style="padding:5px 8px;font-size:11px;">Diego</td><td style="padding:5px 8px;text-align:right;font-size:11px;">${(cv.pctD*100).toFixed(1)}%</td><td style="padding:5px 8px;text-align:right;font-size:11px;">${fmt(cv.utilDiego)}</td><td style="padding:5px 8px;text-align:right;font-size:11px;">${fmt(cv.gastosDiego)}</td><td style="padding:5px 8px;text-align:right;font-size:11px;font-weight:bold;color:#2d6a4f;">${fmt(cv.cobraDiego)}</td></tr>
+    <tr style="border-bottom:1px solid #eee;"><td style="padding:5px 8px;font-size:11px;">Eze</td><td style="padding:5px 8px;text-align:right;font-size:11px;">${(cv.pctE*100).toFixed(1)}%</td><td style="padding:5px 8px;text-align:right;font-size:11px;">${fmt(cv.utilEze)}</td><td style="padding:5px 8px;text-align:right;font-size:11px;">${fmt(cv.gastosEyG*0.5)}</td><td style="padding:5px 8px;text-align:right;font-size:11px;font-weight:bold;color:#2d6a4f;">${fmt(cv.cobraEze)}</td></tr>
+    <tr style="border-bottom:1px solid #eee;"><td style="padding:5px 8px;font-size:11px;">Gabi</td><td style="padding:5px 8px;text-align:right;font-size:11px;">${(cv.pctG*100).toFixed(1)}%</td><td style="padding:5px 8px;text-align:right;font-size:11px;">${fmt(cv.utilGabi)}</td><td style="padding:5px 8px;text-align:right;font-size:11px;">${fmt(cv.gastosEyG*0.5)}</td><td style="padding:5px 8px;text-align:right;font-size:11px;font-weight:bold;color:#2d6a4f;">${fmt(cv.cobraGabi)}</td></tr>
+    <tr style="background:#f5f5f0;font-weight:bold;"><td style="padding:5px 8px;font-size:11px;">Total</td><td style="padding:5px 8px;text-align:right;font-size:11px;">100%</td><td style="padding:5px 8px;text-align:right;font-size:11px;">${fmt(cv.utilidadNeta)}</td><td style="padding:5px 8px;text-align:right;font-size:11px;">${fmt(cv.gastosDiego+cv.gastosEyG)}</td><td style="padding:5px 8px;text-align:right;font-size:11px;color:#2d6a4f;">${fmt(cv.cobraDiego+cv.cobraEze+cv.cobraGabi)}</td></tr>
+  </table>
+  <div style="padding:8px 10px;background:#f5f5f0;border-radius:4px;font-size:11px;margin-bottom:16px;">
+    <strong>EyG transfiere a Diego:</strong> ${fmt(cv.transferenciaADiego)} &nbsp;·&nbsp;
+    <strong>EyG retiene (Eze + Gabi):</strong> ${fmt(cv.quedaEyG)}
+  </div>
   <div style="margin-top:24px;font-size:10px;color:#aaa;text-align:right;">Generado ${new Date().toLocaleString('es-AR')} · ${empresa}</div>
   <scr"+"ipt>window.onload=()=>window.print();<\/scr"+"ipt>
   </body></html>`;
