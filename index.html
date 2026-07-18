@@ -1597,7 +1597,7 @@ function imprimirPj(id) {
     td{padding:5px 8px;border-bottom:1px solid #eee;font-size:11px;}
     .right{text-align:right;} .green{color:#2d6a4f;font-weight:bold;} .red{color:#c1440e;}
     .blue{color:#1e4fa0;} .total{font-weight:bold;background:#f5f5f0;}
-    @media print{body{margin:1cm;}}
+    @media print{body{margin:1cm;} .no-print{display:none!important;}}
   </style></head><body>
   <h1>${pj.nombre}</h1>
   <div class="sub">${empresa} · ${pj.cliente||''} · ${pj.fecha||''} · <span style="background:${pj.estado==='activo'?'#e8f5ee':'#f0efe9'};padding:2px 8px;border-radius:4px;">${pj.estado}</span></div>
