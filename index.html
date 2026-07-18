@@ -1604,11 +1604,11 @@ function imprimirPj(id) {
   
   <h2>Resumen financiero</h2>
   <table>
-    <tr><td>Ingresos cobrados</td><td class="right blue">${fmt(c.ingresosBrutos)}</td></tr>
-    <tr><td>Gastos operativos</td><td class="right red">−${fmt(c.gastosBrutos)}</td></tr>
-    ${cv.ivaCredito>0?`<tr><td>Crédito fiscal IVA</td><td class="right green">+${fmt(c.ivaCredito)}</td></tr>`:''}
-    <tr><td>Impuestos y deducciones</td><td class="right red">−${fmt(c.otrosImp+c.impGan)}</td></tr>
-    <tr class="total"><td>Utilidad neta a repartir</td><td class="right ${cv.utilidadNeta>=0?'green':'red'}">${fmt(c.utilidadNeta)} (${cv.ingresosNeto>0?(c.utilidadNeta/c.ingresosNeto*100).toFixed(1)+'%':'—'})</td></tr>
+    <tr><td>Ingresos cobrados</td><td class="right blue">${fmt(cv.ingresosBrutos)}</td></tr>
+    <tr><td>Gastos operativos</td><td class="right red">−${fmt(cv.gastosBrutos)}</td></tr>
+    ${cv.ivaCredito>0?`<tr><td>Crédito fiscal IVA</td><td class="right green">+${fmt(cv.ivaCredito)}</td></tr>`:''}
+    <tr><td>Impuestos y deducciones</td><td class="right red">−${fmt(cv.otrosImp+c.impGan)}</td></tr>
+    <tr class="total"><td>Utilidad neta a repartir</td><td class="right ${cv.utilidadNeta>=0?'green':'red'}">${fmt(cv.utilidadNeta)} (${cv.ingresosNeto>0?(c.utilidadNeta/c.ingresosNeto*100).toFixed(1)+'%':'—'})</td></tr>
   </table>
   
   ${cv.montoCotizNeto>0?`<h2>Seguimiento de cobros (${cv.monedaCotiz})</h2>
