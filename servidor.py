@@ -153,6 +153,24 @@ def health():
     except Exception as e:
         return jsonify({'status': 'error', 'error': str(e)}), 500
 
+# In-memory PDF storage
+_pdf_store = {}
+
+@app.route('/api/pdf', methods=['POST'])
+def save_pdf():
+    import uuid
+    html = request.get_data(as_text=True)
+    pdf_id = str(uuid.uuid4())[:8]
+    _pdf_store[pdf_id] = html
+    return jsonify({'ok': True, 'id': pdf_id})
+
+@app.route('/api/pdf/<pdf_id>')
+def get_pdf(pdf_id):
+    html = _pdf_store.get(pdf_id, '<h1>PDF no encontrado</h1>')
+    resp = Response(html, mimetype='text/html; charset=utf-8')
+    resp.headers['Cache-Control'] = 'no-cache'
+    return resp
+
 @app.route('/api/abrir')
 def abrir():
     return jsonify({'ok': False, 'error': 'No disponible en modo nube'})
