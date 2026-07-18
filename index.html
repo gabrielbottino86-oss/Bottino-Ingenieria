@@ -1599,6 +1599,10 @@ function imprimirPj(id) {
     .blue{color:#1e4fa0;} .total{font-weight:bold;background:#f5f5f0;}
     @media print{body{margin:1cm;} .no-print{display:none!important;}}
   </style></head><body>
+  <div style="text-align:center;margin:16px 0 20px;padding:12px;background:#f0f0ea;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:16px;">
+    <button onclick="window.print()" style="padding:10px 30px;background:#1a1a18;color:white;border:none;border-radius:8px;font-size:15px;font-family:Arial,sans-serif;cursor:pointer;">🖨 Guardar / Imprimir PDF</button>
+    <span style="font-size:12px;color:#7a7a74;">Elegí "Guardar como PDF" en el diálogo de impresión</span>
+  </div>
   <h1>${pj.nombre}</h1>
   <div class="sub">${empresa} · ${pj.cliente||''} · ${pj.fecha||''} · <span style="background:${pj.estado==='activo'?'#e8f5ee':'#f0efe9'};padding:2px 8px;border-radius:4px;">${pj.estado}</span></div>
   
