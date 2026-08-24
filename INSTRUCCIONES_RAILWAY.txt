@@ -1,0 +1,34 @@
+CÓMO SUBIR A RAILWAY (una sola vez)
+=====================================
+
+PASO 1 — Crear cuenta
+  1. Ir a https://railway.app
+  2. Click en "Login" → "Login with GitHub"
+  3. Si no tenés GitHub: crear cuenta en github.com primero (gratis)
+
+PASO 2 — Crear proyecto
+  1. En Railway, click en "New Project"
+  2. Elegir "Deploy from GitHub repo"
+     (o si no usás GitHub: "Empty project")
+
+PASO 3 — Subir los archivos (opción sin GitHub)
+  1. Instalar Railway CLI:
+     - Abrir cmd y ejecutar: npm install -g @railway/cli
+  2. En la carpeta de este ZIP ejecutar:
+     railway login
+     railway init
+     railway up
+  3. Railway te da una URL como: https://bottino-ing-production.up.railway.app
+
+PASO 4 — Agregar base de datos PostgreSQL
+  1. En tu proyecto Railway, click en "+ New"
+  2. Elegir "Database" → "PostgreSQL"
+  3. Railway conecta automáticamente la DB al servidor
+
+PASO 5 — Listo!
+  - Compartís la URL con Diego, Eze y Gabi
+  - Todos abren esa URL desde cualquier navegador
+  - Los datos se guardan en la nube automáticamente
+
+NOTA: Los archivos adjuntos (carpetas/archivos de la PC)
+no funcionan en modo nube — solo el acceso a los datos.

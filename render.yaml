@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: bottino-ing
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn servidor:app --bind 0.0.0.0:$PORT --workers 2
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: bottino-db
+          property: connectionString
+
+databases:
+  - name: bottino-db
+    plan: free
